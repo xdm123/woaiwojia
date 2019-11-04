@@ -4,7 +4,8 @@ import {
   SET_CITYNAME,
   SET_CITYID,
   SET_CITYDATA,
-  SET_CITYLOCATION
+  SET_CITYLOCATION,
+  SET_POSITION
 } from './motution_types'
 
 const mutations = {
@@ -25,6 +26,9 @@ const mutations = {
   },
   [SET_CITYLOCATION](state,data){
     state.citylocaton = data
+  },
+  [SET_POSITION](state,data){
+    state.citypositon = data
   }
 }
 

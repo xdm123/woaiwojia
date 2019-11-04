@@ -10,6 +10,7 @@ const state = {
   cityname:'',//城市名字
   cityid:'', //城市id
   citydata:[], //所有城市信息
+  citypositon:'', //城市经纬度
 }
 
 export default new Vuex.Store({

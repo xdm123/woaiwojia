@@ -29,13 +29,20 @@ export default {
       postdata:{
         page:1,
         pcount:15,
+        sqid:'',
+        districtid:'',
+        lineid:'',
+        stationid:'',
+        nearby:'',
+        location:''
       },
 
       //控制样式参数
       tabIndex:4, //tab选中后文字颜色
       shadow:false, //底部蒙版
       areaLeaveAindex:0, //区域选择一级菜单文字颜色
-      areaLeaveBindex:999, //区域选择一级菜单文字颜色
+      areaLeaveBindex:999, //区域选择二级菜单文字颜色
+      areaLeaveCindex:999, //区域选择三级菜单文字颜色
 
       //区域筛选
       jrollB:'', 
@@ -46,12 +53,15 @@ export default {
       areaLeaveB0:[], //区域数据
       areaLeaveB1:[], //地铁数据
       areaLeaveB2:[{name:'1km',id:1},{name:'2km',id:2},{name:'5km',id:5}], //附近信息
-      timerB:''
+      timerB:'',
+      areaLeaveBname:''
+
     }
   },
   computed:{
     ...mapState([
-      'cityid'
+      'cityid',
+      'citypositon'
     ])
   },
   components:{
@@ -77,7 +87,7 @@ export default {
       console.log(_this.postdata);
       var url = houseList.replace('cityid',this.cityid);
       this.$http.post(url,qs.stringify(_this.postdata)).then(function(data){
-        console.log(data)
+        // console.log(data)
         _this.list = _this.list.concat(data.data.data.list)
         _this.load = true
         if(_this.isNeedShowTotal){
@@ -98,7 +108,7 @@ export default {
       var _this = this
       var url = areadata.replace('cityid',this.cityid)
       this.$http.post(url).then(function(data){
-        console.log('区域',data);
+        // console.log('区域',data);
         _this.areaLeaveB = data.data.data
         _this.areaLeaveB0 = data.data.data
       }).catch(function(error){
@@ -111,7 +121,7 @@ export default {
       var _this = this
       var url = subwaydata.replace('cityid',this.cityid)
       this.$http.post(url).then(function(data){
-        console.log(data);
+        // console.log(data);
         // _this.areaLeaveB = data.data.data
         _this.areaLeaveB1 = data.data.data
       }).catch(function(error){
@@ -123,16 +133,16 @@ export default {
     loadMore:function(){
       console.log('上拉加载');
       this.isNeedShowTotal = false;
-      this.load = false
-      this.postdata.page = this.postdata.page + 1
-      this.getListData()
+      this.load = false;
+      this.postdata.page = this.postdata.page + 1;
+      this.getListData();
     },
 
     //tab按钮点击
     tabClick:function(e){
       console.log(e);
       var index = e.currentTarget.dataset.index;
-      console.log(index);
+      // console.log(index);
       if(index == this.tabIndex){
         //点击同一个按钮切换显示隐藏
         this.tabIndex = 4;
@@ -146,20 +156,21 @@ export default {
           clearTimeout(_this.timerB)
           _this.timerB = setTimeout(() => {
             var leave_b_id = this.$refs.area_leave_b.id
-            console.log(leave_b_id);
+            // console.log(leave_b_id);
             _this.jrollB = new JRoll("#" + leave_b_id , {scrollBarY:true});
           })
         }
       }
-      
     },
 
     //区域筛选一级菜单点击事件
     areaLeaveAClick:function(e){
+      console.log(1111);
       var index = e.currentTarget.dataset.index;
       this.areaLeaveAindex = index;
-      this.areaLeaveC = []
-      console.log(this.jrollB)
+      this.areaLeaveC = [];
+      this.areaLeaveBindex = 999
+      // console.log(this.jrollB)
       if(index == 0){
         this.areaLeaveB = this.areaLeaveB0
       }else if(index == 1){
@@ -177,17 +188,47 @@ export default {
     //区域筛选二级菜单点击事件
     areaLeaveBClick:function(e){
       var index = e.currentTarget.dataset.index;
+      console.log(e);
       this.areaLeaveBindex = index
+      this.areaLeaveCindex = 999
       var _this = this
       if(this.areaLeaveAindex == 0){
         this.areaLeaveC = this.areaLeaveB[index].sqlist;
+        var id = e.currentTarget.dataset.id;
+        console.log(id);
+        this.postdata.districtid = id;
+        this.postdata.sqid = ''
+        this.areaLeaveBname = e.currentTarget.dataset.name
       }else if(this.areaLeaveAindex == 1){
         this.areaLeaveC = this.areaLeaveB[index].stationlist;
+        this.postdata.lineid = e.currentTarget.dataset.id;
+        this.postdata.stationid = ''
+        this.areaLeaveBname = e.currentTarget.dataset.name
+        console.log(this.areaLeaveC)
+      }else if(this.areaLeaveAindex == 2){
+        var id = e.currentTarget.dataset.id
+        this.list = [];
+        this.load = false;
+        this.shadow = false;
+        this.tabdata[this.tabIndex].name = e.currentTarget.dataset.name;
+        this.tabdata[this.tabIndex].selected = true;
+        this.tabIndex = 4;
+        this.areaLeaveCindex = 999
+        this.areaLeaveBindex = 999
+        this.postdata.sqid = '';
+        this.postdata.districtid = '';
+        this.postdata.stationid = ''
+        this.postdata.lineid = ''
+        this.postdata.location = this.citypositon;
+        this.postdata.nearby = id;
+        this.areaLeaveC = [];
+        this.getListData();
       }
       this.$nextTick(function(){
         // 初始化jroll插件
         if(_this.jrollC == ''){
-          if(index == 0 || index == 1){
+          if(this.areaLeaveAindex == 0 || this.areaLeaveAindex == 1){
+            console.log(index);
             var leave_c_id = this.$refs.area_leave_c.id
             _this.jrollC = new JRoll("#" + leave_c_id , {scrollBarY:true});
           }
@@ -196,6 +237,77 @@ export default {
           _this.jrollC.scrollTo(0,0);
         }
       })
+
+      
     },
+
+    //区域二级筛选菜单不限制区域
+    LeaveBlimit:function(){
+      this.list = [];
+      this.load = false;
+      this.shadow = false;
+      this.tabdata[this.tabIndex].name = '区域';
+      this.tabdata[this.tabIndex].selected = false;
+      this.tabIndex = 4;
+      this.areaLeaveCindex = 999
+      this.areaLeaveBindex = 999
+      this.postdata.sqid = '';
+      this.postdata.districtid = '';
+      this.postdata.stationid = ''
+      this.postdata.lineid = ''
+      this.postdata.location = '';
+      this.postdata.nearby = '';
+      this.areaLeaveC = [];
+      this.getListData();
+    },
+    //区域三级筛选菜单不限制区域
+    LeaveClimit:function(e){
+      console.log('不限制三级区域');
+      this.list = [];
+      this.load = false;
+      this.shadow = false;
+      this.tabdata[this.tabIndex].selected = true;
+      this.tabdata[this.tabIndex].name = e.currentTarget.dataset.name;
+      this.tabIndex = 4;
+      this.areaLeaveCindex = 999;
+      this.getListData();
+      this.postdata.location = '';
+      this.postdata.nearby = '';
+    },
+    //区域三级菜单选择商圈
+    LeaveCcLick:function(e){
+      var id = e.currentTarget.dataset.id;
+      var name = e.currentTarget.dataset.name;
+      this.list = [];
+      this.load = false;
+      this.shadow = false;
+      this.tabdata[this.tabIndex].name = name;
+      this.tabdata[this.tabIndex].selected = true;
+      this.tabIndex = 4;
+      if(this.areaLeaveAindex == 0){
+        this.postdata.sqid = id;
+        this.postdata.districtid = '';
+        this.postdata.stationid = ''
+        this.postdata.lineid = ''
+        this.postdata.location = '';
+        this.postdata.nearby = '';
+      }else if(this.areaLeaveAindex == 1){
+        this.postdata.sqid = '';
+        this.postdata.districtid = '';
+        this.postdata.stationid = id
+        this.postdata.location = '';
+        this.postdata.nearby = '';
+        this.postdata.lineid = e.currentTarget.dataset.lineid
+      }
+      this.getListData();
+      this.areaLeaveCindex = e.currentTarget.dataset.index
+    },
+    
+    //点击阴影隐藏筛选条件
+    hideShadow:function(){
+      console.log(11)
+      this.shadow = false;
+      this.tabIndex = 4
+    }
   }
 }

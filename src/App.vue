@@ -13,7 +13,7 @@
 <script>
 import {mapState,mapMutations} from 'vuex'
 import {homedataurl,getcityid} from './public/api'
-import {SET_TITLE,SET_HOME_DATA,SET_CITYNAME,SET_CITYID,SET_CITYDATA,SET_CITYLOCATION} from './store/motution_types'
+import {SET_TITLE,SET_HOME_DATA,SET_CITYNAME,SET_CITYID,SET_CITYDATA,SET_CITYLOCATION,SET_POSITION} from './store/motution_types'
 import BMap from 'BMap'
 export default {
   name: 'App',
@@ -71,7 +71,8 @@ export default {
       SET_CITYNAME,
       SET_CITYID,
       SET_CITYDATA,
-      SET_CITYLOCATION
+      SET_CITYLOCATION,
+      SET_POSITION
     ]),
     setTitle:function(title){
       this.SET_TITLE(title)
@@ -84,7 +85,7 @@ export default {
       this.$http.post(url).then(function(data){
         _this.SET_HOME_DATA(data.data.data);
         _this.load = true
-        console.log(_this.homedata)
+        // console.log(_this.homedata)
       }).catch(function(error){
 
       })
@@ -99,14 +100,17 @@ export default {
       var geolocation = new BMap.Geolocation();
       geolocation.getCurrentPosition(function(r){  
         console.log(r)
+        //--------------------------------------------------------------------保存经纬度
+        var position = r.longitude + ',' + r.latitude
+        _this.SET_POSITION(position)
         _this.SET_CITYNAME(r.address.city)
         _this.SET_CITYLOCATION(r.address.city)
         var cityname = r.address.city.substr(0,2)
-        console.log(cityname);
+        // console.log(cityname);
         //获取所有城市
         _this.$http.post(getcityid).then(function(data){
           _this.SET_CITYDATA(data.data.data)
-          console.log(data.data.data);
+          // console.log(data.data.data);
           data.data.data.map(function(item){
             if(item.name == cityname){
               // console.log(item.id);
