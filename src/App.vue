@@ -145,6 +145,14 @@ export default {
 </script>
 
 <style>
+input,input:focus,input:active{user-select: text;-webkit-user-select:text;zoom:1;}
+iframe{
+  display: none;
+}
+#app,html,body{
+  width:100%;
+  height:100%;
+}
 .slide-right-enter-active,
 .slide-right-leave-active,
 .slide-left-enter-active,

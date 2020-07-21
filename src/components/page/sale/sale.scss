@@ -48,6 +48,7 @@
     line-height: 1.333rem;
     // background:red;
     display: flex;
+    box-sizing: border-box;
     border-bottom:1px solid #eee;
     li{
       width:25%;
@@ -56,7 +57,9 @@
       justify-content: center;
       align-items: center;
       font-size: .373rem;
-      
+      white-space:nowrap;
+      text-overflow:ellipsis;
+      overflow:hidden;
     }
     .arrow{
       display: inline-block;
@@ -107,9 +110,10 @@
     width:100%;
     background:#fff;
     height:9.693rem;
-    margin-top:3.6rem;
+    // margin-top:3.6rem;
     position: relative;
     font-size: .36rem;
+    z-index: 1000;
   }
   .area_leave_a{
     width:100%;
@@ -162,6 +166,103 @@
         border-bottom:1px solid #f3f3f3;
       }
     }
+  }
+  .priceBox,.houseBox{
+    width:100%;
+    // margin-top:3.6rem;
+    background:#fff;
+    position: relative;
+    z-index: 1000;
+  }
+  .price_wrap{
+    padding:.4rem .48rem;
+    .zdy{
+      font-size: .373rem;
+      span{
+        color:#7D7E82;
+      }
+    }
+    ul{
+      overflow: hidden;
+    }
+    ul li{
+      width:23%;
+      float:left;
+      margin:.267rem 1% 0;
+      height:.8rem;
+      line-height: 0.8rem;
+      text-align: center;
+      background:#F7F7F7;
+      border-radius: 15px;
+    }
+  }
+  .input_price{
+    width:100%;
+    height:1.2rem;
+    overflow: hidden;
+    input{
+      border:none;
+      height:100%;
+      font-size: .37rem;
+      width:41%;
+      text-align: center;
+    }
+    span{
+      display: inline-block;
+      width:9%;
+      text-align: center;
+    }
+  }
+  .btn_wrap{
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    p{
+      width:45%;
+      text-align: center;
+      height:1rem;
+      line-height: 1rem;
+      border-radius: 10px;
+      margin-top:10px;
+      font-size: .367rem;
+    }
+    .cancel{
+      background:#f7f7f7;
+    }
+    .confirm{
+      background: -webkit-linear-gradient(left,#FFC30E,#FFAD00);
+      background: -o-linear-gradient(right,#FFC30E,#FFAD00);
+      background: -moz-linear-gradient(right,#FFC30E,#FFAD00);
+      background: linear-gradient(to right,#FFC30E,#FFAD00);
+      color:#fff;
+    }
+  }
+  .cur{
+    color:#FFB102;
+  }
+  .house_wrap{
+    padding:.4rem .48rem;
+    ul{
+      overflow: hidden;
+    }
+    ul li{
+      width:23%;
+      float:left;
+      margin:.267rem 1% 0;
+      height:.8rem;
+      line-height: 0.8rem;
+      text-align: center;
+      background:#F7F7F7;
+      border-radius: 15px;
+    }
+  }
+  .moreBox{
+    width:100%;
+    background:#fff;
+    position: fixed;
+    top:3.6rem;
+    bottom:0;
+    z-index: 1000;
   }
 }
 

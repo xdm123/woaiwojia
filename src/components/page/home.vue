@@ -8,7 +8,7 @@
           {{cityname | setCityName}}
           <img src="../../assets/img/resources/city-arrow.png" alt="">
         </p>
-        <p class='search_name'>
+        <p class='search_name' @click="toSearchPage">
           <img src="../../assets/img/source/list-magnifier.png" alt="">
           请输入小区商圈或名称
         </p>
@@ -127,6 +127,11 @@ export default {
     },
     loadPicFail:function(){
       console.log(1);
+    },
+    toSearchPage:function(){
+      this.$router.push({
+        path:'/search'
+      })
     }
   },
   filters:{

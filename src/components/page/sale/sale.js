@@ -34,7 +34,9 @@ export default {
         lineid:'',
         stationid:'',
         nearby:'',
-        location:''
+        location:'',
+        price:'',
+        broom:''
       },
 
       //控制样式参数
@@ -54,8 +56,23 @@ export default {
       areaLeaveB1:[], //地铁数据
       areaLeaveB2:[{name:'1km',id:1},{name:'2km',id:2},{name:'5km',id:5}], //附近信息
       timerB:'',
-      areaLeaveBname:''
+      areaLeaveBname:'',
 
+      //价格筛选
+      priceTag:[],
+      tagIndex:999, //选中标签下标
+      minprice:'',
+      maxprice:'',
+
+      //房型筛选
+      houseTag:[ //筛选房型时可选的标签
+        { broom: 1, selected: false, name: '一室' },
+        { broom: 2, selected: false, name: '二室' },
+        { broom: 3, selected: false, name: '三室' },
+        { broom: 4, selected: false, name: '四室' },
+        { broom: 5, selected: false, name: '五室' },
+        { broom: 9, selected: false, name: '五室以上' }
+      ]
     }
   },
   computed:{
@@ -63,6 +80,14 @@ export default {
       'cityid',
       'citypositon'
     ])
+  },
+  watch:{
+    minprice(value){
+      this.tagIndex = 999
+    },
+    maxprice(value){
+      this.tagIndex = 999
+    }
   },
   components:{
     Head:(res) => {require(['../../common/header.vue'],res)},
@@ -74,6 +99,7 @@ export default {
     this.getListData();
     this.getAreaData();
     this.getLineData();
+    this.setPriceTag();
   },
   methods:{
     goBack:function(){
@@ -162,6 +188,8 @@ export default {
         }
       }
     },
+
+    // -------------------------------------------------区域
 
     //区域筛选一级菜单点击事件
     areaLeaveAClick:function(e){
@@ -308,6 +336,121 @@ export default {
       console.log(11)
       this.shadow = false;
       this.tabIndex = 4
+    },
+
+    //-----------------------------------------------------价格
+
+    //根据城市id设置价格筛选标签
+    setPriceTag:function(){
+      var id = this.cityid
+      if(this.cityid == 1 || this.cityid == 9){
+        this.priceTag = [ 
+          { code: '0,200', name: '200万以下' },
+          { code: '200,250', name: '200-250万' },
+          { code: '250,300', name: '250-300万' },
+          { code: '300,400', name: '300-400万' },
+          { code: '400,500', name: '400-500万' },
+          { code: '500,600', name: '500-600万' },
+          { code: '600,800', name: '600-800万' },
+          { code: '800,1000', name: '800-1000万' },
+          { code: '1000,0', name: '1000万以上' }
+        ]
+      }else if(id == 15 || id == 22 || id == 24 || id == 6 || id == 16){
+        this.priceTag = [ 
+          { code: '0,50', name: '50万以下' },
+          { code: '50,80', name: '50-80万' },
+          { code: '80,100', name: '80-100万' },
+          { code: '100,120', name: '100-120万' },
+          { code: '120,150', name: '120-150万' },
+          { code: '150,200', name: '150-200万' },
+          { code: '200,300', name: '200-300万' },
+          { code: '300,0', name: '300万以上' }
+        ]
+      }
+    },
+
+    //选择价格标签
+    choosePrice:function(e){
+      this.minprice = ''
+      this.maxprice ==''
+      this.tagIndex = e.currentTarget.dataset.index;
+    },
+
+    //确认选择价格
+    confirmPrice:function(){
+      this.list = [];
+      this.load = false;
+      this.shadow = false;
+      if(this.minprice == '' && this.maxprice == ''){
+        if(this.tagIndex != 999){
+          this.tabdata[this.tabIndex].name = this.priceTag[this.tagIndex].name;
+          this.tabdata[this.tabIndex].selected = true;
+          this.postdata.price = this.priceTag[this.tagIndex].code;
+        }else{
+          this.tabdata[this.tabIndex].name = '价格';
+          this.tabdata[this.tabIndex].selected = false;
+          this.postdata.price = '';
+        }
+      }else{
+        if(this.minprice && !this.maxprice){
+          var name = this.minprice + '万以上';
+          var code = this.minprice + ',' + 99999
+          this.tabdata[this.tabIndex].name = name;
+          this.tabdata[this.tabIndex].selected = true;
+          this.postdata.price = code;
+        }else if(!this.minprice && this.maxprice){
+          var name = this.maxprice + '万以下';
+          var code = 0 + ',' + this.maxprice
+          this.tabdata[this.tabIndex].name = name;
+          this.tabdata[this.tabIndex].selected = true;
+          this.postdata.price = code;
+        }
+      }
+      this.getListData();
+      this.tabIndex = 4;
+    },
+
+    //清空价格选项
+    cancelPrice:function(){
+      this.tagIndex = 999
+      this.minprice = ''
+      this.maxprice = ''
+    },
+
+    //-----------------------------------------房型
+    chooseBroom:function(e){
+      var index = e.currentTarget.dataset.index;
+      this.houseTag[index].selected = !this.houseTag[index].selected
+    },
+    confirmBroom:function(){
+      var broomcode = [];
+      var broomname = []
+      this.houseTag.map((item) => {
+        if(item.selected){
+          broomcode.push(item.broom)
+          broomname.push(item.name)
+        }
+      });
+      if(broomcode.length != 0){
+        this.postdata.broom = broomcode.join();
+        this.tabdata[this.tabIndex].name = broomname.join();
+        this.tabdata[this.tabIndex].selected = true;
+      }else{
+        this.postdata.broom = '';
+        this.tabdata[this.tabIndex].name = '房型';
+        this.tabdata[this.tabIndex].selected = false;
+      }
+      console.log(broomname);
+      this.list = [];
+      this.load = false;
+      this.shadow = false;
+      this.getListData();
+      this.tabIndex = 4;
+    },
+    cancelBroom:function(){
+      this.houseTag.map((item,index) => {
+        this.houseTag[index].selected = false
+      });
     }
   }
 }
