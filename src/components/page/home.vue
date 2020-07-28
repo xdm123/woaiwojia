@@ -132,6 +132,7 @@ export default {
       this.$router.push({
         path:'/search'
       })
+      this.SET_TITLE('搜索')
     }
   },
   filters:{
